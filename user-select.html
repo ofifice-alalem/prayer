@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختيار المستخدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .user-card { cursor: pointer; transition: all 0.3s ease; }
+        .user-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">اختر المستخدم</h1>
+            <p class="text-gray-600">اختر من المستخدمين الموجودين أو أضف مستخدم جديد</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="users-grid">
+            <!-- Users will be loaded here -->
+        </div>
+
+        <!-- Add New User Card -->
+        <div class="mt-6 flex justify-center">
+            <div class="user-card bg-white rounded-2xl shadow-lg p-6 w-64 border-2 border-dashed border-gray-300 hover:border-blue-500" onclick="addNewUser()">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-3xl text-gray-400 mx-auto mb-4">+</div>
+                    <h3 class="text-lg font-bold text-gray-600 mb-2">إضافة مستخدم جديد</h3>
+                    <p class="text-sm text-gray-500">انقر لإنشاء حساب جديد</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getAllUsers() {
+            const users = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('user_')) {
+                    const username = key.replace('user_', '');
+                    const profile = JSON.parse(localStorage.getItem(key));
+                    users.push({ username, profile });
+                }
+            }
+            return users;
+        }
+
+        function selectUser(username) {
+            localStorage.setItem('currentUser', username);
+            window.location.href = 'prayer-dashboard.html';
+        }
+
+        function addNewUser() {
+            window.location.href = 'user-setup.html';
+        }
+
+        function deleteUser(username, event) {
+            event.stopPropagation();
+            if (confirm(`هل أنت متأكد من حذف المستخدم "${username}"؟\nسيتم حذف جميع بياناته نهائياً.`)) {
+                // Delete user profile
+                localStorage.removeItem(`user_${username}`);
+                
+                // Delete all prayer data for this user
+                const keysToDelete = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith(`prayers_${username}_`)) {
+                        keysToDelete.push(key);
+                    }
+                }
+                keysToDelete.forEach(key => localStorage.removeItem(key));
+                
+                // Refresh the page
+                loadUsers();
+            }
+        }
+
+        function loadUsers() {
+            const users = getAllUsers();
+            const usersGrid = document.getElementById('users-grid');
+            
+            if (users.length === 0) {
+                usersGrid.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-500 mb-4">لا يوجد مستخدمين مسجلين</p>
+                        <button onclick="addNewUser()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            إنشاء أول مستخدم
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            usersGrid.innerHTML = users.map(({ username, profile }) => `
+                <div class="user-card bg-white rounded-2xl shadow-lg p-6 relative" onclick="selectUser('${username}')">
+                    <button onclick="deleteUser('${username}', event)" 
+                            class="absolute top-2 left-2 text-red-400 hover:text-red-600 text-xl"
+                            title="حذف المستخدم">×</button>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-${profile.color}-500 rounded-full flex items-center justify-center text-2xl text-white mx-auto mb-4">
+                            ${profile.avatar}
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">${profile.username}</h3>
+                        <p class="text-sm text-gray-500">انقر للدخول</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Check if coming from first time setup
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('firstTime') === 'true') {
+            // Redirect to dashboard if this is first time setup
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'prayer-dashboard.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>

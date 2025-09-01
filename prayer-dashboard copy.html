@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة متابعة الصلاة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Amiri', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-arabic">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">لوحة متابعة الصلاة</h1>
+            <p class="text-gray-600">تتبع صلواتك اليومية</p>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- صلاة الفريضة -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover" id="fard-card">
+                <div class="text-center">
+                    <div class="flex justify-center mb-4">
+                        <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                            <circle cx="60" cy="60" r="50" stroke="#10b981" stroke-width="8" fill="none"
+                                    stroke-dasharray="314.16" stroke-dashoffset="0" class="progress-ring-circle" id="fard-progress"/>
+                        </svg>
+                        <div class="absolute mt-6">
+                            <span class="text-2xl font-bold text-gray-800" id="fard-count">5</span>
+                            <span class="text-gray-500">/5</span>
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">صلاة الفريضة</h2>
+                    <div class="flex justify-center items-center gap-2 mb-3">
+                        <span class="text-3xl" id="fard-icon">✅</span>
+                        <span class="text-lg font-semibold text-green-600" id="fard-percentage">100%</span>
+                    </div>
+                    <div class="bg-green-100 rounded-lg p-3">
+                        <p class="text-green-800 font-medium">مكتملة بحمد الله</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صلاة النافلة -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover" id="nafl-card">
+                <div class="text-center">
+                    <div class="flex justify-center mb-4">
+                        <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                            <circle cx="60" cy="60" r="50" stroke="#f59e0b" stroke-width="8" fill="none"
+                                    stroke-dasharray="314.16" stroke-dashoffset="104.72" class="progress-ring-circle" id="nafl-progress"/>
+                        </svg>
+                        <div class="absolute mt-6">
+                            <span class="text-2xl font-bold text-gray-800" id="nafl-count">2</span>
+                            <span class="text-gray-500">/3</span>
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">صلاة النافلة</h2>
+                    <div class="flex justify-center items-center gap-2 mb-3">
+                        <span class="text-3xl" id="nafl-icon">⭐</span>
+                        <span class="text-lg font-semibold text-amber-600" id="nafl-percentage">67%</span>
+                    </div>
+                    <div class="bg-amber-100 rounded-lg p-3">
+                        <p class="text-amber-800 font-medium">الفجر، الضحى</p>
+                        <p class="text-amber-600 text-sm">متبقي: الوتر</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Summary -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">الإجمالي اليومي</h2>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-blue-600" id="total-prayers">7</div>
+                        <div class="text-blue-800 text-sm">إجمالي الصلوات</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-green-600" id="total-percentage">88%</div>
+                        <div class="text-green-800 text-sm">النسبة الإجمالية</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-purple-600" id="streak">🔥 3</div>
+                        <div class="text-purple-800 text-sm">أيام متتالية</div>
+                    </div>
+                </div>
+                
+                <!-- Overall Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                    <div class="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out" 
+                         style="width: 88%" id="overall-progress-bar"></div>
+                </div>
+                
+                <p class="text-gray-600">بارك الله فيك، استمر في المحافظة على الصلاة</p>
+            </div>
+        </div>
+
+        <!-- Prayer Details (Expandable) -->
+        <div class="mt-6 bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">تفاصيل اليوم</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="prayer-item bg-green-50 rounded-lg p-3 text-center">
+                    <div class="text-green-600 text-xl mb-1">✅</div>
+                    <div class="text-sm font-medium text-green-800">الفجر</div>
+                </div>
+                <div class="prayer-item bg-green-50 rounded-lg p-3 text-center">
+                    <div class="text-green-600 text-xl mb-1">✅</div>
+                    <div class="text-sm font-medium text-green-800">الظهر</div>
+                </div>
+                <div class="prayer-item bg-green-50 rounded-lg p-3 text-center">
+                    <div class="text-green-600 text-xl mb-1">✅</div>
+                    <div class="text-sm font-medium text-green-800">العصر</div>
+                </div>
+                <div class="prayer-item bg-green-50 rounded-lg p-3 text-center">
+                    <div class="text-green-600 text-xl mb-1">✅</div>
+                    <div class="text-sm font-medium text-green-800">المغرب</div>
+                </div>
+                <div class="prayer-item bg-green-50 rounded-lg p-3 text-center">
+                    <div class="text-green-600 text-xl mb-1">✅</div>
+                    <div class="text-sm font-medium text-green-800">العشاء</div>
+                </div>
+                <div class="prayer-item bg-amber-50 rounded-lg p-3 text-center">
+                    <div class="text-amber-600 text-xl mb-1">⭐</div>
+                    <div class="text-sm font-medium text-amber-800">سنة الفجر</div>
+                </div>
+                <div class="prayer-item bg-amber-50 rounded-lg p-3 text-center">
+                    <div class="text-amber-600 text-xl mb-1">⭐</div>
+                    <div class="text-sm font-medium text-amber-800">الضحى</div>
+                </div>
+                <div class="prayer-item bg-gray-100 rounded-lg p-3 text-center">
+                    <div class="text-gray-400 text-xl mb-1">⏳</div>
+                    <div class="text-sm font-medium text-gray-600">الوتر</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update progress circles
+        function updateProgress() {
+            const fardProgress = document.getElementById('fard-progress');
+            const naflProgress = document.getElementById('nafl-progress');
+            
+            // Fard prayers: 5/5 = 100%
+            const fardPercentage = 100;
+            const fardOffset = 314.16 - (314.16 * fardPercentage) / 100;
+            fardProgress.style.strokeDashoffset = fardOffset;
+            
+            // Nafl prayers: 2/3 = 67%
+            const naflPercentage = 67;
+            const naflOffset = 314.16 - (314.16 * naflPercentage) / 100;
+            naflProgress.style.strokeDashoffset = naflOffset;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', updateProgress);
+
+        // Add click interactions for future extensibility
+        document.querySelectorAll('.prayer-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>

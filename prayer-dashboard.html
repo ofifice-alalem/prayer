@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة متابعة الصلاة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .star {
+            position: absolute;
+            font-size: 40px;
+            animation: fall 6s linear infinite;
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 0.6s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-arabic">
+    <div id="celebration" class="celebration"></div>
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- User Header -->
+        <div class="bg-white rounded-2xl shadow-lg p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl" id="user-avatar"></div>
+                    <div>
+                        <div class="text-xl font-bold" id="user-name"></div>
+                        <div class="text-sm text-gray-600">مرحباً بك</div>
+                    </div>
+                </div>
+                <button onclick="changeUser()" class="text-sm text-gray-500 hover:text-gray-700">تغيير المستخدم</button>
+            </div>
+        </div>
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-4 mb-6">
+                <div class="text-2xl font-bold" id="current-date"></div>
+                <div class="text-lg text-gray-600" id="current-day"></div>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">لوحة متابعة الصلاة</h1>
+            <p class="text-gray-600">تتبع صلواتك اليومية</p>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- صلاة الفريضة -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover" id="fard-card">
+                <div class="text-center">
+                    <div class="flex justify-center mb-4">
+                        <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                            <circle cx="60" cy="60" r="50" stroke="#10b981" stroke-width="8" fill="none"
+                                    stroke-dasharray="314.16" stroke-dashoffset="0" class="progress-ring-circle" id="fard-progress"/>
+                        </svg>
+                        <div class="absolute mt-6">
+                            <span class="text-2xl font-bold text-gray-800" id="fard-count">5</span>
+                            <span class="text-gray-500">/5</span>
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">صلاة الفريضة</h2>
+                    <div class="flex justify-center items-center gap-2 mb-3">
+                        <span class="text-3xl" id="fard-icon">✅</span>
+                        <span class="text-lg font-semibold text-green-600" id="fard-percentage">100%</span>
+                    </div>
+                    <div class="rounded-lg p-3" id="fard-status">
+                        <p class="font-medium" id="fard-status-text">ابدأ بتسجيل صلواتك</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صلاة النافلة -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover" id="nafl-card">
+                <div class="text-center">
+                    <div class="flex justify-center mb-4">
+                        <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                            <circle cx="60" cy="60" r="50" stroke="#f59e0b" stroke-width="8" fill="none"
+                                    stroke-dasharray="314.16" stroke-dashoffset="104.72" class="progress-ring-circle" id="nafl-progress"/>
+                        </svg>
+                        <div class="absolute mt-6">
+                            <span class="text-2xl font-bold text-gray-800" id="nafl-count">2</span>
+                            <span class="text-gray-500">/3</span>
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">صلاة النافلة</h2>
+                    <div class="flex justify-center items-center gap-2 mb-3">
+                        <span class="text-3xl" id="nafl-icon">⭐</span>
+                        <span class="text-lg font-semibold text-amber-600" id="nafl-percentage">67%</span>
+                    </div>
+                    <div class="rounded-lg p-3" id="nafl-status">
+                        <p class="font-medium" id="nafl-completed-text">ابدأ بتسجيل النوافل</p>
+                        <p class="text-sm" id="nafl-remaining-text"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Summary -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">الإجمالي اليومي</h2>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-blue-600" id="total-prayers">7</div>
+                        <div class="text-blue-800 text-sm">إجمالي الصلوات</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-green-600" id="total-percentage">88%</div>
+                        <div class="text-green-800 text-sm">النسبة الإجمالية</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-purple-600" id="streak">🔥 3</div>
+                        <div class="text-purple-800 text-sm">أيام متتالية</div>
+                    </div>
+                </div>
+                
+                <!-- Overall Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                    <div class="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out" 
+                         style="width: 88%" id="overall-progress-bar"></div>
+                </div>
+                
+                <p class="text-gray-600">بارك الله فيك، استمر في المحافظة على الصلاة</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mt-6 text-center">
+            <a href="monthly-report.html" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                التقرير الشهري
+            </a>
+        </div>
+
+        <!-- Prayer Input Section -->
+        <div class="mt-6 bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">اضغط لتسجيل الصلاة</h3>
+            
+            <!-- Fard Prayers -->
+            <div class="mb-6">
+                <h4 class="text-md font-semibold text-gray-700 mb-3">الصلوات المفروضة</h4>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="fajr" data-type="fard">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">الفجر</div>
+                    </div>
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="dhuhr" data-type="fard">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">الظهر</div>
+                    </div>
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="asr" data-type="fard">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">العصر</div>
+                    </div>
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="maghrib" data-type="fard">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">المغرب</div>
+                    </div>
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="isha" data-type="fard">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">العشاء</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nafl Prayers -->
+            <div>
+                <h4 class="text-md font-semibold text-gray-700 mb-3">النوافل</h4>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="fajr-sunnah" data-type="nafl">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">سنة الفجر</div>
+                    </div>
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="duha" data-type="nafl">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">الضحى</div>
+                    </div>
+                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="witr" data-type="nafl">
+                        <div class="prayer-icon text-xl mb-1">⏳</div>
+                        <div class="text-sm font-medium">الوتر</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Prayer tracking state
+        let prayerState = {
+            fard: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
+            nafl: { 'fajr-sunnah': false, duha: false, witr: false }
+        };
+
+        // Toggle prayer status
+        function togglePrayer(prayerName, type) {
+            prayerState[type][prayerName] = !prayerState[type][prayerName];
+            updateUI();
+        }
+
+        // Update all UI elements
+        function updateUI() {
+            updatePrayerItems();
+            updateProgressCircles();
+            updateSummary();
+        }
+
+        // Update prayer item appearance
+        function updatePrayerItems() {
+            document.querySelectorAll('.prayer-item').forEach(item => {
+                const prayer = item.dataset.prayer;
+                const type = item.dataset.type;
+                const isCompleted = prayerState[type][prayer];
+                const icon = item.querySelector('.prayer-icon');
+                
+                if (isCompleted) {
+                    if (type === 'fard') {
+                        item.className = 'prayer-item cursor-pointer bg-green-50 rounded-lg p-3 text-center transition-all duration-200';
+                        item.querySelector('.text-sm').className = 'text-sm font-medium text-green-800';
+                        icon.textContent = '✅';
+                        icon.className = 'prayer-icon text-green-600 text-xl mb-1';
+                    } else {
+                        item.className = 'prayer-item cursor-pointer bg-amber-50 rounded-lg p-3 text-center transition-all duration-200';
+                        item.querySelector('.text-sm').className = 'text-sm font-medium text-amber-800';
+                        icon.textContent = '⭐';
+                        icon.className = 'prayer-icon text-amber-600 text-xl mb-1';
+                    }
+                } else {
+                    item.className = 'prayer-item cursor-pointer bg-gray-100 rounded-lg p-3 text-center transition-all duration-200';
+                    item.querySelector('.text-sm').className = 'text-sm font-medium text-gray-600';
+                    icon.textContent = '⏳';
+                    icon.className = 'prayer-icon text-gray-400 text-xl mb-1';
+                }
+            });
+        }
+
+        // Update progress circles and status messages
+        function updateProgressCircles() {
+            const fardCompleted = Object.values(prayerState.fard).filter(Boolean).length;
+            const naflCompleted = Object.values(prayerState.nafl).filter(Boolean).length;
+            
+            // Update fard progress
+            const fardPercentage = (fardCompleted / 5) * 100;
+            const fardOffset = 314.16 - (314.16 * fardPercentage) / 100;
+            document.getElementById('fard-progress').style.strokeDashoffset = fardOffset;
+            document.getElementById('fard-count').textContent = fardCompleted;
+            document.getElementById('fard-percentage').textContent = Math.round(fardPercentage) + '%';
+            
+            // Update nafl progress
+            const naflPercentage = (naflCompleted / 3) * 100;
+            const naflOffset = 314.16 - (314.16 * naflPercentage) / 100;
+            document.getElementById('nafl-progress').style.strokeDashoffset = naflOffset;
+            document.getElementById('nafl-count').textContent = naflCompleted;
+            document.getElementById('nafl-percentage').textContent = Math.round(naflPercentage) + '%';
+            
+            // Update icons
+            document.getElementById('fard-icon').textContent = fardCompleted === 5 ? '✅' : '⏳';
+            document.getElementById('nafl-icon').textContent = naflCompleted === 3 ? '⭐' : '⏳';
+            
+            // Update fard status message
+            const fardStatus = document.getElementById('fard-status');
+            const fardStatusText = document.getElementById('fard-status-text');
+            if (fardCompleted === 5) {
+                fardStatus.className = 'bg-green-100 rounded-lg p-3';
+                fardStatusText.className = 'text-green-800 font-medium';
+                fardStatusText.textContent = 'مكتملة بحمد الله';
+            } else {
+                fardStatus.className = 'bg-gray-100 rounded-lg p-3';
+                fardStatusText.className = 'text-gray-600 font-medium';
+                fardStatusText.textContent = `متبقي ${5 - fardCompleted} صلوات`;
+            }
+            
+            // Update nafl status message
+            const naflStatus = document.getElementById('nafl-status');
+            const naflCompletedText = document.getElementById('nafl-completed-text');
+            const naflRemainingText = document.getElementById('nafl-remaining-text');
+            
+            const completedNafl = [];
+            const remainingNafl = [];
+            const naflNames = { 'fajr-sunnah': 'سنة الفجر', 'duha': 'الضحى', 'witr': 'الوتر' };
+            
+            Object.entries(prayerState.nafl).forEach(([prayer, completed]) => {
+                if (completed) {
+                    completedNafl.push(naflNames[prayer]);
+                } else {
+                    remainingNafl.push(naflNames[prayer]);
+                }
+            });
+            
+            if (naflCompleted === 3) {
+                naflStatus.className = 'bg-amber-100 rounded-lg p-3';
+                naflCompletedText.className = 'text-amber-800 font-medium';
+                naflCompletedText.textContent = 'مكتملة بحمد الله';
+                naflRemainingText.textContent = '';
+            } else if (naflCompleted > 0) {
+                naflStatus.className = 'bg-amber-100 rounded-lg p-3';
+                naflCompletedText.className = 'text-amber-800 font-medium';
+                naflCompletedText.textContent = completedNafl.join('، ');
+                naflRemainingText.className = 'text-amber-600 text-sm';
+                naflRemainingText.textContent = 'متبقي: ' + remainingNafl.join('، ');
+            } else {
+                naflStatus.className = 'bg-gray-100 rounded-lg p-3';
+                naflCompletedText.className = 'text-gray-600 font-medium';
+                naflCompletedText.textContent = 'ابدأ بتسجيل النوافل';
+                naflRemainingText.textContent = '';
+            }
+        }
+
+        // Update summary section
+        function updateSummary() {
+            const fardCompleted = Object.values(prayerState.fard).filter(Boolean).length;
+            const naflCompleted = Object.values(prayerState.nafl).filter(Boolean).length;
+            const totalCompleted = fardCompleted + naflCompleted;
+            const totalPercentage = Math.round((totalCompleted / 8) * 100);
+            
+            document.getElementById('total-prayers').textContent = totalCompleted + '/8';
+            document.getElementById('total-percentage').textContent = totalPercentage + '%';
+            document.getElementById('overall-progress-bar').style.width = totalPercentage + '%';
+            
+            // Save to localStorage
+            saveDailyData();
+            
+            if (totalCompleted === 8) {
+                triggerCelebration();
+            }
+        }
+        
+        // User management functions
+        function getCurrentUser() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'user-select.html';
+                return null;
+            }
+            return currentUser;
+        }
+        
+        function getUserProfile(username) {
+            const profile = localStorage.getItem(`user_${username}`);
+            return profile ? JSON.parse(profile) : null;
+        }
+        
+        // Save daily data to localStorage
+        function saveDailyData() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const now = new Date();
+            const day = now.getDate();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            const key = `prayers_${currentUser}_${year}_${month}`;
+            
+            let monthData = JSON.parse(localStorage.getItem(key) || '{}');
+            monthData[day] = {
+                fajr: prayerState.fard.fajr,
+                dhuhr: prayerState.fard.dhuhr,
+                asr: prayerState.fard.asr,
+                maghrib: prayerState.fard.maghrib,
+                isha: prayerState.fard.isha,
+                'fajr-sunnah': prayerState.nafl['fajr-sunnah'],
+                duha: prayerState.nafl.duha,
+                witr: prayerState.nafl.witr
+            };
+            localStorage.setItem(key, JSON.stringify(monthData));
+        }
+        
+        // Load daily data from localStorage
+        function loadDailyData() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const now = new Date();
+            const day = now.getDate();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            const key = `prayers_${currentUser}_${year}_${month}`;
+            
+            const monthData = JSON.parse(localStorage.getItem(key) || '{}');
+            const dayData = monthData[day] || {};
+            
+            // Update prayer state based on saved data
+            prayerState.fard.fajr = dayData.fajr || false;
+            prayerState.fard.dhuhr = dayData.dhuhr || false;
+            prayerState.fard.asr = dayData.asr || false;
+            prayerState.fard.maghrib = dayData.maghrib || false;
+            prayerState.fard.isha = dayData.isha || false;
+            
+            prayerState.nafl['fajr-sunnah'] = dayData['fajr-sunnah'] || false;
+            prayerState.nafl.duha = dayData.duha || false;
+            prayerState.nafl.witr = dayData.witr || false;
+        }
+        
+        function changeUser() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'user-select.html';
+        }
+        
+        function applyUserTheme() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const profile = getUserProfile(currentUser);
+            if (!profile) return;
+            
+            document.getElementById('user-name').textContent = profile.username;
+            document.getElementById('user-avatar').textContent = profile.avatar;
+            document.getElementById('user-avatar').className = `w-12 h-12 bg-${profile.color}-500 rounded-full flex items-center justify-center text-2xl text-white`;
+            
+            // Apply theme colors
+            document.body.className = `bg-gradient-to-br from-${profile.color}-50 to-${profile.color}-100 min-h-screen font-arabic`;
+        }
+        
+        function triggerCelebration() {
+            const celebration = document.getElementById('celebration');
+            const emojis = ['⭐', '✨', '🌟', '💫', '🎉', '🎊', '🏆', '👏'];
+            
+            document.getElementById('fard-card').classList.add('pulse');
+            document.getElementById('nafl-card').classList.add('pulse');
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    star.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                    celebration.appendChild(star);
+                    
+                    setTimeout(() => {
+                        if (star.parentNode) {
+                            star.parentNode.removeChild(star);
+                        }
+                    }, 8000);
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                document.getElementById('fard-card').classList.remove('pulse');
+                document.getElementById('nafl-card').classList.remove('pulse');
+            }, 600);
+        }
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            
+            const dayName = days[now.getDay()];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            
+            document.getElementById('current-day').textContent = dayName;
+            document.getElementById('current-date').textContent = `${day} - ${now.getMonth() + 1} - ${year}`;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            applyUserTheme();
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+            loadDailyData();
+            updateUI();
+            
+            // Add click listeners
+            document.querySelectorAll('.prayer-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const prayer = this.dataset.prayer;
+                    const type = this.dataset.type;
+                    
+                    // Animation
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                    
+                    // Toggle prayer
+                    togglePrayer(prayer, type);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

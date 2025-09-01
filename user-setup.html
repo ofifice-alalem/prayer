@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعداد المستخدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .avatar { cursor: pointer; transition: all 0.3s ease; }
+        .avatar:hover { transform: scale(1.1); }
+        .avatar.selected { ring: 4px; }
+        .color-option { cursor: pointer; transition: all 0.3s ease; }
+        .color-option:hover { transform: scale(1.1); }
+        .color-option.selected { ring: 4px; ring-white; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">مرحباً بك!</h1>
+                <p class="text-gray-600">قم بإعداد ملفك الشخصي</p>
+            </div>
+
+            <form id="user-form" class="space-y-6">
+                <!-- اسم المستخدم -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-3">اسم المستخدم</label>
+                    <input type="text" id="username" required 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="أدخل اسمك">
+                </div>
+
+                <!-- اختيار الأفاتار -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-3">اختر أفاتار</label>
+                    <div class="grid grid-cols-4 gap-4" id="avatar-options">
+                        <div class="avatar w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="👤">👤</div>
+                        <div class="avatar w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="🧔">🧔</div>
+                        <div class="avatar w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="👨">👨</div>
+                        <div class="avatar w-16 h-16 bg-pink-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="👩">👩</div>
+                        <div class="avatar w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="🧑">🧑</div>
+                        <div class="avatar w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="👶">👶</div>
+                        <div class="avatar w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="🧓">🧓</div>
+                        <div class="avatar w-16 h-16 bg-teal-500 rounded-full flex items-center justify-center text-white text-2xl" data-avatar="👱">👱</div>
+                    </div>
+                </div>
+
+                <!-- اختيار اللون -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-3">اختر لون المظهر</label>
+                    <div class="grid grid-cols-6 gap-3" id="color-options">
+                        <div class="color-option w-12 h-12 bg-blue-500 rounded-full" data-color="blue"></div>
+                        <div class="color-option w-12 h-12 bg-green-500 rounded-full" data-color="green"></div>
+                        <div class="color-option w-12 h-12 bg-purple-500 rounded-full" data-color="purple"></div>
+                        <div class="color-option w-12 h-12 bg-pink-500 rounded-full" data-color="pink"></div>
+                        <div class="color-option w-12 h-12 bg-indigo-500 rounded-full" data-color="indigo"></div>
+                        <div class="color-option w-12 h-12 bg-red-500 rounded-full" data-color="red"></div>
+                        <div class="color-option w-12 h-12 bg-yellow-500 rounded-full" data-color="yellow"></div>
+                        <div class="color-option w-12 h-12 bg-teal-500 rounded-full" data-color="teal"></div>
+                        <div class="color-option w-12 h-12 bg-orange-500 rounded-full" data-color="orange"></div>
+                        <div class="color-option w-12 h-12 bg-cyan-500 rounded-full" data-color="cyan"></div>
+                        <div class="color-option w-12 h-12 bg-emerald-500 rounded-full" data-color="emerald"></div>
+                        <div class="color-option w-12 h-12 bg-rose-500 rounded-full" data-color="rose"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    حفظ وبدء الاستخدام
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedAvatar = '👤';
+        let selectedColor = 'blue';
+
+        // Avatar selection
+        document.querySelectorAll('.avatar').forEach(avatar => {
+            avatar.addEventListener('click', () => {
+                document.querySelectorAll('.avatar').forEach(a => a.classList.remove('selected', 'ring-4', 'ring-blue-500'));
+                avatar.classList.add('selected', 'ring-4', 'ring-blue-500');
+                selectedAvatar = avatar.dataset.avatar;
+            });
+        });
+
+        // Color selection
+        document.querySelectorAll('.color-option').forEach(color => {
+            color.addEventListener('click', () => {
+                document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+                color.classList.add('selected');
+                selectedColor = color.dataset.color;
+            });
+        });
+
+        // Form submission
+        document.getElementById('user-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                alert('يرجى إدخال اسم المستخدم');
+                return;
+            }
+
+            const userProfile = {
+                username: username,
+                avatar: selectedAvatar,
+                color: selectedColor,
+                createdAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('currentUser', username);
+            localStorage.setItem(`user_${username}`, JSON.stringify(userProfile));
+            
+            window.location.href = 'user-select.html?firstTime=true';
+        });
+
+        // Set defaults
+        document.querySelector('.avatar').classList.add('selected', 'ring-4', 'ring-blue-500');
+        document.querySelector('.color-option').classList.add('selected');
+    </script>
+</body>
+</html>
