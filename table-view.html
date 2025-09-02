@@ -53,14 +53,17 @@
         </div>
 
         <!-- Navigation -->
-        <div class="mb-6 flex justify-center gap-4">
-            <a href="prayer-dashboard.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+        <div class="mb-6 flex justify-center gap-4 flex-wrap">
+            <a href="prayer-dashboard.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
                 اللوحة اليومية
             </a>
-            <a href="monthly-report.html" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+            <a href="monthly-report.html" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
                 التقرير الشهري
             </a>
-            <button onclick="exportToExcel()" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2">
+            <a href="missed-rakaat-summary.html" class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors">
+                الركعات الفائتة
+            </a>
+            <button onclick="exportToExcel()" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M3 17a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 5a2 2 0 012-2h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/>
                 </svg>
@@ -75,11 +78,11 @@
                 <thead>
                     <tr class="border-b border-gray-200">
                         <th class="text-gray-800 font-bold p-3 text-right">اليوم</th>
-                        <th class="text-green-600 font-bold p-3 text-center">الفجر</th>
-                        <th class="text-green-600 font-bold p-3 text-center">الظهر</th>
-                        <th class="text-green-600 font-bold p-3 text-center">العصر</th>
-                        <th class="text-green-600 font-bold p-3 text-center">المغرب</th>
-                        <th class="text-green-600 font-bold p-3 text-center">العشاء</th>
+                        <th class="text-green-600 font-bold p-3 text-center">الفجر<br><span class="text-xs">(2)</span></th>
+                        <th class="text-green-600 font-bold p-3 text-center">الظهر<br><span class="text-xs">(4)</span></th>
+                        <th class="text-green-600 font-bold p-3 text-center">العصر<br><span class="text-xs">(4)</span></th>
+                        <th class="text-green-600 font-bold p-3 text-center">المغرب<br><span class="text-xs">(3)</span></th>
+                        <th class="text-green-600 font-bold p-3 text-center">العشاء<br><span class="text-xs">(4)</span></th>
                         <th class="text-amber-600 font-bold p-3 text-center">سنة الفجر</th>
                         <th class="text-amber-600 font-bold p-3 text-center">الضحى</th>
                         <th class="text-amber-600 font-bold p-3 text-center">الوتر</th>
@@ -119,6 +122,16 @@
             const stored = localStorage.getItem(key);
             return stored ? JSON.parse(stored) : {};
         }
+        
+        function isPrayerCompleted(prayerData) {
+            return prayerData && (prayerData === true || prayerData.completed === true);
+        }
+        
+        function getPrayerStatus(prayerData) {
+            if (!prayerData || prayerData === false) return { completed: false, missed: 0 };
+            if (prayerData === true) return { completed: true, missed: 0 };
+            return { completed: prayerData.completed || false, missed: prayerData.missedRakaat || 0 };
+        }
 
         function generateTable() {
             const now = new Date();
@@ -135,7 +148,7 @@
                 const dayData = monthlyData[day] || {};
                 const isFutureDay = day > today;
                 
-                const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => dayData[p]).length;
+                const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => isPrayerCompleted(dayData[p])).length;
                 const naflCount = ['fajr-sunnah', 'duha', 'witr'].filter(p => dayData[p]).length;
                 const totalPercentage = Math.round(((fardCount + naflCount) / 8) * 100);
                 
@@ -147,49 +160,44 @@
                 
                 const dayName = getDayName(day);
                 
+                const fardPrayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+                let fardCells = '';
+                fardPrayers.forEach(prayer => {
+                    const status = getPrayerStatus(dayData[prayer]);
+                    let cellContent = '';
+                    
+                    if (isFutureDay) {
+                        cellContent = '<span class="text-gray-400">-</span>';
+                    } else if (status.completed && status.missed === 0) {
+                        cellContent = '<span class="text-green-600 text-xl">✅</span>';
+                    } else if (status.completed && status.missed > 0) {
+                        cellContent = `<span class="text-orange-500 text-xl" title="${status.missed} ركعة فائتة">⚠️</span>`;
+                    } else {
+                        cellContent = '<span class="text-red-500 text-xl">❌</span>';
+                    }
+                    
+                    fardCells += `<td class="p-3 text-center cursor-pointer" onclick="${isFutureDay ? '' : `editPrayer(${day}, '${prayer}')`}">${cellContent}</td>`;
+                });
+                
                 row.innerHTML = `
                     <td class="p-3 text-gray-800 font-medium">
                         <div class="font-bold">${day} ${isAllFardComplete && isAllNaflComplete ? '⭐' : ''}</div>
                         <div class="text-xs text-gray-500">${dayName}</div>
                     </td>
-                    <td class="p-3 text-center">
-                        <input type="checkbox" ${dayData.fajr ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'fajr', this.checked)" 
-                               class="w-5 h-5 text-green-600 rounded">
-                    </td>
-                    <td class="p-3 text-center">
-                        <input type="checkbox" ${dayData.dhuhr ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'dhuhr', this.checked)" 
-                               class="w-5 h-5 text-green-600 rounded">
-                    </td>
-                    <td class="p-3 text-center">
-                        <input type="checkbox" ${dayData.asr ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'asr', this.checked)" 
-                               class="w-5 h-5 text-green-600 rounded">
-                    </td>
-                    <td class="p-3 text-center">
-                        <input type="checkbox" ${dayData.maghrib ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'maghrib', this.checked)" 
-                               class="w-5 h-5 text-green-600 rounded">
-                    </td>
-                    <td class="p-3 text-center">
-                        <input type="checkbox" ${dayData.isha ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'isha', this.checked)" 
-                               class="w-5 h-5 text-green-600 rounded">
-                    </td>
+                    ${fardCells}
                     <td class="p-3 text-center">
                         <input type="checkbox" ${dayData['fajr-sunnah'] ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'fajr-sunnah', this.checked)" 
+                               onchange="updateNaflPrayer(${day}, 'fajr-sunnah', this.checked)" 
                                class="w-5 h-5 text-amber-600 rounded">
                     </td>
                     <td class="p-3 text-center">
                         <input type="checkbox" ${dayData.duha ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'duha', this.checked)" 
+                               onchange="updateNaflPrayer(${day}, 'duha', this.checked)" 
                                class="w-5 h-5 text-amber-600 rounded">
                     </td>
                     <td class="p-3 text-center">
                         <input type="checkbox" ${dayData.witr ? 'checked' : ''} ${isFutureDay ? 'disabled' : ''} 
-                               onchange="updatePrayer(${day}, 'witr', this.checked)" 
+                               onchange="updateNaflPrayer(${day}, 'witr', this.checked)" 
                                class="w-5 h-5 text-amber-600 rounded">
                     </td>
                     <td class="p-3 text-center text-gray-800 font-bold">${isFutureDay ? '-' : totalPercentage + '%'}</td>
@@ -199,7 +207,113 @@
             }
         }
 
-        function updatePrayer(day, prayer, checked) {
+        function editPrayer(day, prayer) {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const monthlyData = loadMonthlyData();
+            const dayData = monthlyData[day] || {};
+            const prayerData = dayData[prayer] || { completed: false, missedRakaat: 0 };
+            const status = getPrayerStatus(prayerData);
+            
+            const prayerNames = {
+                'fajr': 'الفجر (2 ركعة)', 'dhuhr': 'الظهر (4 ركعات)', 'asr': 'العصر (4 ركعات)', 
+                'maghrib': 'المغرب (3 ركعات)', 'isha': 'العشاء (4 ركعات)'
+            };
+            const maxRakaat = { 'fajr': 2, 'dhuhr': 4, 'asr': 4, 'maghrib': 3, 'isha': 4 };
+            
+            let rakaatOptions = '<option value="0">لا يوجد فوات</option>';
+            for (let i = 1; i <= maxRakaat[prayer]; i++) {
+                rakaatOptions += `<option value="${i}" ${status.missed === i ? 'selected' : ''}>${i === 1 ? 'ركعة واحدة' : i === 2 ? 'ركعتان' : i + ' ركعات'}</option>`;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 w-80 max-w-sm mx-4">
+                    <h3 class="text-lg font-bold mb-4">${prayerNames[prayer]} - يوم ${day}</h3>
+                    <div class="space-y-3">
+                        <button class="w-full py-2 px-4 rounded ${status.completed && status.missed === 0 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}" id="complete-btn">
+                            مكتملة ✅
+                        </button>
+                        <select class="w-full py-2 px-4 rounded border" id="missed-select">
+                            ${rakaatOptions}
+                        </select>
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="savePrayerEdit(${day}, '${prayer}')" class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                                حفظ
+                            </button>
+                            <button onclick="closeModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400">
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            window.currentModal = modal;
+            
+            // Add event listeners
+            const completeBtn = modal.querySelector('#complete-btn');
+            const missedSelect = modal.querySelector('#missed-select');
+            
+            completeBtn.addEventListener('click', function() {
+                if (this.classList.contains('bg-green-500')) {
+                    this.className = 'w-full py-2 px-4 rounded bg-gray-200 text-gray-600';
+                    missedSelect.value = '0';
+                } else {
+                    this.className = 'w-full py-2 px-4 rounded bg-green-500 text-white';
+                    missedSelect.value = '0';
+                }
+            });
+            
+            missedSelect.addEventListener('change', function() {
+                if (this.value > 0) {
+                    completeBtn.className = 'w-full py-2 px-4 rounded bg-orange-500 text-white';
+                } else {
+                    completeBtn.className = 'w-full py-2 px-4 rounded bg-gray-200 text-gray-600';
+                }
+            });
+        }
+        
+        function savePrayerEdit(day, prayer) {
+            const modal = window.currentModal;
+            const completeBtn = modal.querySelector('#complete-btn');
+            const missedSelect = modal.querySelector('#missed-select');
+            const isActive = completeBtn.classList.contains('bg-green-500') || completeBtn.classList.contains('bg-orange-500');
+            const missedRakaat = parseInt(missedSelect.value);
+            
+            const currentUser = getCurrentUser();
+            const now = new Date();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            const key = `prayers_${currentUser}_${year}_${month}`;
+            
+            let monthData = JSON.parse(localStorage.getItem(key) || '{}');
+            if (!monthData[day]) monthData[day] = {};
+            
+            if (isActive && missedRakaat === 0) {
+                monthData[day][prayer] = { completed: true, missedRakaat: 0 };
+            } else if (missedRakaat > 0) {
+                monthData[day][prayer] = { completed: true, missedRakaat: missedRakaat };
+            } else {
+                monthData[day][prayer] = { completed: false, missedRakaat: 0 };
+            }
+            
+            localStorage.setItem(key, JSON.stringify(monthData));
+            closeModal();
+            generateTable();
+        }
+        
+        function closeModal() {
+            if (window.currentModal) {
+                document.body.removeChild(window.currentModal);
+                window.currentModal = null;
+            }
+        }
+        
+        function updateNaflPrayer(day, prayer, checked) {
             const currentUser = getCurrentUser();
             if (!currentUser) return;
             
@@ -216,7 +330,7 @@
             
             // Update percentage and styling for this row
             const dayData = monthData[day];
-            const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => dayData[p]).length;
+            const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => isPrayerCompleted(dayData[p])).length;
             const naflCount = ['fajr-sunnah', 'duha', 'witr'].filter(p => dayData[p]).length;
             const totalPercentage = Math.round(((fardCount + naflCount) / 8) * 100);
             const isAllFardComplete = fardCount === 5;
@@ -293,18 +407,19 @@
                     const isFutureDay = day > today;
                     
                     if (!isFutureDay) {
-                        const prayers = {
-                            fajr: dayData.fajr ? '✓' : '✗',
-                            dhuhr: dayData.dhuhr ? '✓' : '✗',
-                            asr: dayData.asr ? '✓' : '✗',
-                            maghrib: dayData.maghrib ? '✓' : '✗',
-                            isha: dayData.isha ? '✓' : '✗',
-                            fajrSunnah: dayData['fajr-sunnah'] ? '✓' : '✗',
-                            duha: dayData.duha ? '✓' : '✗',
-                            witr: dayData.witr ? '✓' : '✗'
-                        };
+                        const prayers = {};
+                        ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
+                            const status = getPrayerStatus(dayData[prayer]);
+                            if (status.completed && status.missed === 0) prayers[prayer] = '✓';
+                            else if (status.completed && status.missed > 0) prayers[prayer] = `⚠(${status.missed})`;
+                            else prayers[prayer] = '✗';
+                        });
                         
-                        const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => dayData[p]).length;
+                        prayers.fajrSunnah = dayData['fajr-sunnah'] ? '✓' : '✗';
+                        prayers.duha = dayData.duha ? '✓' : '✗';
+                        prayers.witr = dayData.witr ? '✓' : '✗';
+                        
+                        const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => isPrayerCompleted(dayData[p])).length;
                         const naflCount = ['fajr-sunnah', 'duha', 'witr'].filter(p => dayData[p]).length;
                         const totalPercentage = Math.round(((fardCount + naflCount) / 8) * 100);
                         

@@ -75,12 +75,12 @@
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-arabic">
     <!-- Modal Container -->
     <div id="modal" class="modal">
-        <div class="modal-content bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-11/12 sm:w-96 max-w-md border-r-4" id="modal-card">
-            <div class="flex items-start justify-between mb-4">
+        <div class="modal-content bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-11/12 sm:w-96 max-w-md max-h-[90vh] border-r-4 flex flex-col" id="modal-card">
+            <div class="flex items-start justify-between mb-4 flex-shrink-0">
                 <h3 class="text-xl font-bold text-gray-800" id="modal-title"></h3>
                 <button onclick="hideModal()" class="text-gray-400 hover:text-gray-600 text-2xl">×</button>
             </div>
-            <div id="modal-content"></div>
+            <div id="modal-content" class="overflow-y-auto flex-1"></div>
         </div>
     </div>
 
@@ -110,12 +110,15 @@
         </div>
 
         <!-- Navigation -->
-        <div class="mb-6 flex justify-center gap-4">
-            <a href="prayer-dashboard.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+        <div class="mb-6 flex justify-center gap-4 flex-wrap">
+            <a href="prayer-dashboard.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
                 اللوحة اليومية
             </a>
-            <a href="table-view.html" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+            <a href="table-view.html" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
                 العرض الجدولي
+            </a>
+            <a href="missed-rakaat-summary.html" class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors">
+                الركعات الفائتة
             </a>
         </div>
 
@@ -214,6 +217,10 @@
             const stored = localStorage.getItem(key);
             return stored ? JSON.parse(stored) : {};
         }
+        
+        function isPrayerCompleted(prayerData) {
+            return prayerData && (prayerData === true || prayerData.completed === true);
+        }
 
         function getPerformanceColor(percentage) {
             if (percentage === 100) return 'bg-green-500';
@@ -245,7 +252,7 @@
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayData = monthlyData[day] || {};
-                const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => dayData[p]).length;
+                const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => isPrayerCompleted(dayData[p])).length;
                 const naflCount = ['fajr-sunnah', 'duha', 'witr'].filter(p => dayData[p]).length;
                 const fardPercentage = Math.round((fardCount / 5) * 100);
                 const naflPercentage = Math.round((naflCount / 3) * 100);
@@ -292,7 +299,7 @@
             let totalFard = 0, totalNafl = 0, totalDays = 0;
             
             Object.values(monthlyData).forEach(day => {
-                const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => day[p]).length;
+                const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => isPrayerCompleted(day[p])).length;
                 const naflCount = ['fajr-sunnah', 'duha', 'witr'].filter(p => day[p]).length;
                 totalFard += fardCount;
                 totalNafl += naflCount;
@@ -336,10 +343,10 @@
             const title = document.getElementById('modal-title');
             const content = document.getElementById('modal-content');
             
-            if (totalPercentage === 100) modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl border-r-4 border-green-500';
-            else if (totalPercentage >= 80) modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl border-r-4 border-blue-500';
-            else if (totalPercentage >= 50) modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl border-r-4 border-yellow-500';
-            else modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl border-r-4 border-red-500';
+            if (totalPercentage === 100) modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl max-h-[90vh] border-r-4 border-green-500 flex flex-col';
+            else if (totalPercentage >= 80) modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl max-h-[90vh] border-r-4 border-blue-500 flex flex-col';
+            else if (totalPercentage >= 50) modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl max-h-[90vh] border-r-4 border-yellow-500 flex flex-col';
+            else modalCard.className = 'modal-content bg-white rounded-2xl shadow-2xl p-6 w-11/12 md:w-[600px] max-w-2xl max-h-[90vh] border-r-4 border-red-500 flex flex-col';
             
             title.textContent = `اليوم ${day}: ${getDayName(day)}`;
             
@@ -388,18 +395,37 @@
             const content = document.getElementById('modal-content');
             
             const prayerNames = {
-                'fajr': 'الفجر', 'dhuhr': 'الظهر', 'asr': 'العصر', 'maghrib': 'المغرب', 'isha': 'العشاء',
+                'fajr': 'الفجر (2)', 'dhuhr': 'الظهر (4)', 'asr': 'العصر (4)', 'maghrib': 'المغرب (3)', 'isha': 'العشاء (4)',
                 'fajr-sunnah': 'سنة الفجر', 'duha': 'الضحى', 'witr': 'الوتر'
             };
             
+            const maxRakaat = { 'fajr': 2, 'dhuhr': 4, 'asr': 4, 'maghrib': 3, 'isha': 4 };
+            
             let fardHtml = '';
             ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
-                const checked = dayData[prayer] ? 'checked' : '';
+                const prayerData = dayData[prayer] || { completed: false, missedRakaat: 0 };
+                const isCompleted = isPrayerCompleted(prayerData);
+                const missedRakaat = (prayerData && prayerData.missedRakaat) ? prayerData.missedRakaat : 0;
+                const isComplete = isCompleted && missedRakaat === 0;
+                const isMissed = isCompleted && missedRakaat > 0;
+                
+                let rakaatOptions = '<option value="0">لا يوجد فوات</option>';
+                for (let i = 1; i <= maxRakaat[prayer]; i++) {
+                    rakaatOptions += `<option value="${i}" ${missedRakaat === i ? 'selected' : ''}>${i === 1 ? 'ركعة واحدة' : i === 2 ? 'ركعتان' : i + ' ركعات'}</option>`;
+                }
+                
                 fardHtml += `
-                    <label class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                        <input type="checkbox" ${checked} data-prayer="${prayer}" class="w-5 h-5 text-green-600">
-                        <span class="text-gray-700">${prayerNames[prayer]}</span>
-                    </label>
+                    <div class="border border-gray-200 rounded-lg p-3 space-y-2">
+                        <div class="font-medium text-gray-700">${prayerNames[prayer]}</div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 px-3 text-xs rounded ${isComplete ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'} complete-btn" data-prayer="${prayer}">
+                                مكتملة ✅
+                            </button>
+                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="${prayer}">
+                                ${rakaatOptions}
+                            </select>
+                        </div>
+                    </div>
                 `;
             });
             
@@ -415,41 +441,88 @@
             });
             
             content.innerHTML = `
-                <div class="space-y-4">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="font-medium text-gray-800 mb-3">الصلوات المفروضة</h4>
-                            <div class="space-y-1 border border-gray-200 rounded-lg p-2">
-                                ${fardHtml}
+                <div class="overflow-y-auto flex-1">
+                    <div class="space-y-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-3">الصلوات المفروضة</h4>
+                                <div class="space-y-2">
+                                    ${fardHtml}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800 mb-3">النوافل</h4>
+                                <div class="space-y-1 border border-gray-200 rounded-lg p-2">
+                                    ${naflHtml}
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <h4 class="font-medium text-gray-800 mb-3">النوافل</h4>
-                            <div class="space-y-1 border border-gray-200 rounded-lg p-2">
-                                ${naflHtml}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex gap-3 mt-6">
-                        <button onclick="saveEdit(${day})" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                            حفظ
-                        </button>
-                        <button onclick="hideModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
-                            إلغاء
-                        </button>
                     </div>
                 </div>
+                <div class="flex gap-3 mt-4 pt-4 border-t border-gray-200 flex-shrink-0">
+                    <button onclick="saveEdit(${day})" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        حفظ
+                    </button>
+                    <button onclick="hideModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                        إلغاء
+                    </button>
+                </div>
             `;
+            
+            // Add event listeners for fard prayers
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prayer = this.dataset.prayer;
+                    const missedSelect = document.querySelector(`.missed-select[data-prayer="${prayer}"]`);
+                    
+                    if (this.classList.contains('bg-green-500')) {
+                        this.className = 'flex-1 py-2 px-3 text-xs rounded bg-gray-200 text-gray-600 complete-btn';
+                        missedSelect.value = '0';
+                    } else {
+                        this.className = 'flex-1 py-2 px-3 text-xs rounded bg-green-500 text-white complete-btn';
+                        missedSelect.value = '0';
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.missed-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const prayer = this.dataset.prayer;
+                    const completeBtn = document.querySelector(`.complete-btn[data-prayer="${prayer}"]`);
+                    
+                    if (this.value > 0) {
+                        completeBtn.className = 'flex-1 py-2 px-3 text-xs rounded bg-orange-500 text-white complete-btn';
+                    } else {
+                        completeBtn.className = 'flex-1 py-2 px-3 text-xs rounded bg-gray-200 text-gray-600 complete-btn';
+                    }
+                });
+            });
         }
         
         function saveEdit(day) {
             const currentUser = getCurrentUser();
             if (!currentUser) return;
             
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
             const dayData = {};
             
-            checkboxes.forEach(checkbox => {
+            // Handle fard prayers
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                const prayer = btn.dataset.prayer;
+                const isActive = btn.classList.contains('bg-green-500');
+                const missedSelect = document.querySelector(`.missed-select[data-prayer="${prayer}"]`);
+                const missedRakaat = parseInt(missedSelect.value);
+                
+                if (isActive && missedRakaat === 0) {
+                    dayData[prayer] = { completed: true, missedRakaat: 0 };
+                } else if (missedRakaat > 0) {
+                    dayData[prayer] = { completed: true, missedRakaat: missedRakaat };
+                } else {
+                    dayData[prayer] = { completed: false, missedRakaat: 0 };
+                }
+            });
+            
+            // Handle nafl prayers
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                 dayData[checkbox.dataset.prayer] = checkbox.checked;
             });
             

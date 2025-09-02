@@ -96,12 +96,15 @@
         </div>
 
         <!-- Navigation -->
-        <div class="mb-6 flex justify-center gap-4">
-            <a href="monthly-report.html" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+        <div class="mb-6 flex justify-center gap-4 flex-wrap">
+            <a href="monthly-report.html" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
                 التقرير الشهري
             </a>
-            <a href="table-view.html" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors">
+            <a href="table-view.html" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors">
                 العرض الجدولي
+            </a>
+            <a href="missed-rakaat-summary.html" class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors">
+                الركعات الفائتة
             </a>
         </div>
 
@@ -197,26 +200,83 @@
             <!-- Fard Prayers -->
             <div class="mb-6">
                 <h4 class="text-md font-semibold text-gray-700 mb-3">الصلوات المفروضة</h4>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="fajr" data-type="fard">
-                        <div class="prayer-icon text-xl mb-1">⏳</div>
-                        <div class="text-sm font-medium">الفجر</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="fard-prayer-card bg-gray-50 rounded-lg p-4" data-prayer="fajr">
+                        <div class="text-center mb-3">
+                            <div class="prayer-icon text-2xl mb-1">⏳</div>
+                            <div class="text-sm font-medium">الفجر (2 ركعة)</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 px-3 text-xs rounded complete-btn" data-prayer="fajr" data-action="complete">مكتملة ✅</button>
+                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="fajr">
+                                <option value="0">لا يوجد فوات</option>
+                                <option value="1">ركعة واحدة</option>
+                                <option value="2">ركعتان</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="dhuhr" data-type="fard">
-                        <div class="prayer-icon text-xl mb-1">⏳</div>
-                        <div class="text-sm font-medium">الظهر</div>
+                    <div class="fard-prayer-card bg-gray-50 rounded-lg p-4" data-prayer="dhuhr">
+                        <div class="text-center mb-3">
+                            <div class="prayer-icon text-2xl mb-1">⏳</div>
+                            <div class="text-sm font-medium">الظهر (4 ركعات)</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 px-3 text-xs rounded complete-btn" data-prayer="dhuhr" data-action="complete">مكتملة ✅</button>
+                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="dhuhr">
+                                <option value="0">لا يوجد فوات</option>
+                                <option value="1">ركعة واحدة</option>
+                                <option value="2">ركعتان</option>
+                                <option value="3">3 ركعات</option>
+                                <option value="4">4 ركعات</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="asr" data-type="fard">
-                        <div class="prayer-icon text-xl mb-1">⏳</div>
-                        <div class="text-sm font-medium">العصر</div>
+                    <div class="fard-prayer-card bg-gray-50 rounded-lg p-4" data-prayer="asr">
+                        <div class="text-center mb-3">
+                            <div class="prayer-icon text-2xl mb-1">⏳</div>
+                            <div class="text-sm font-medium">العصر (4 ركعات)</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 px-3 text-xs rounded complete-btn" data-prayer="asr" data-action="complete">مكتملة ✅</button>
+                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="asr">
+                                <option value="0">لا يوجد فوات</option>
+                                <option value="1">ركعة واحدة</option>
+                                <option value="2">ركعتان</option>
+                                <option value="3">3 ركعات</option>
+                                <option value="4">4 ركعات</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="maghrib" data-type="fard">
-                        <div class="prayer-icon text-xl mb-1">⏳</div>
-                        <div class="text-sm font-medium">المغرب</div>
+                    <div class="fard-prayer-card bg-gray-50 rounded-lg p-4" data-prayer="maghrib">
+                        <div class="text-center mb-3">
+                            <div class="prayer-icon text-2xl mb-1">⏳</div>
+                            <div class="text-sm font-medium">المغرب (3 ركعات)</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 px-3 text-xs rounded complete-btn" data-prayer="maghrib" data-action="complete">مكتملة ✅</button>
+                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="maghrib">
+                                <option value="0">لا يوجد فوات</option>
+                                <option value="1">ركعة واحدة</option>
+                                <option value="2">ركعتان</option>
+                                <option value="3">3 ركعات</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="prayer-item cursor-pointer rounded-lg p-3 text-center transition-all duration-200" data-prayer="isha" data-type="fard">
-                        <div class="prayer-icon text-xl mb-1">⏳</div>
-                        <div class="text-sm font-medium">العشاء</div>
+                    <div class="fard-prayer-card bg-gray-50 rounded-lg p-4" data-prayer="isha">
+                        <div class="text-center mb-3">
+                            <div class="prayer-icon text-2xl mb-1">⏳</div>
+                            <div class="text-sm font-medium">العشاء (4 ركعات)</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="flex-1 py-2 px-3 text-xs rounded complete-btn" data-prayer="isha" data-action="complete">مكتملة ✅</button>
+                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="isha">
+                                <option value="0">لا يوجد فوات</option>
+                                <option value="1">ركعة واحدة</option>
+                                <option value="2">ركعتان</option>
+                                <option value="3">3 ركعات</option>
+                                <option value="4">4 ركعات</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,13 +305,31 @@
     <script>
         // Prayer tracking state
         let prayerState = {
-            fard: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
+            fard: { 
+                fajr: { completed: false, missedRakaat: 0 }, 
+                dhuhr: { completed: false, missedRakaat: 0 }, 
+                asr: { completed: false, missedRakaat: 0 }, 
+                maghrib: { completed: false, missedRakaat: 0 }, 
+                isha: { completed: false, missedRakaat: 0 }
+            },
             nafl: { 'fajr-sunnah': false, duha: false, witr: false }
         };
 
-        // Toggle prayer status
-        function togglePrayer(prayerName, type) {
-            prayerState[type][prayerName] = !prayerState[type][prayerName];
+        // Handle fard prayer actions
+        function handleFardPrayer(prayerName, action, missedRakaat = 0) {
+            if (action === 'complete') {
+                prayerState.fard[prayerName] = { completed: true, missedRakaat: 0 };
+            } else if (action === 'missed') {
+                prayerState.fard[prayerName] = { completed: true, missedRakaat: parseInt(missedRakaat) };
+            } else {
+                prayerState.fard[prayerName] = { completed: false, missedRakaat: 0 };
+            }
+            updateUI();
+        }
+
+        // Toggle nafl prayer status
+        function toggleNaflPrayer(prayerName) {
+            prayerState.nafl[prayerName] = !prayerState.nafl[prayerName];
             updateUI();
         }
 
@@ -264,36 +342,60 @@
 
         // Update prayer item appearance
         function updatePrayerItems() {
+            // Update fard prayers
+            document.querySelectorAll('.fard-prayer-card').forEach(card => {
+                const prayer = card.dataset.prayer;
+                const prayerData = prayerState.fard[prayer];
+                const icon = card.querySelector('.prayer-icon');
+                const completeBtn = card.querySelector('.complete-btn');
+                const missedSelect = card.querySelector('.missed-select');
+                
+                if (prayerData.completed) {
+                    if (prayerData.missedRakaat === 0) {
+                        card.className = 'fard-prayer-card bg-green-50 rounded-lg p-4';
+                        icon.textContent = '✅';
+                        completeBtn.className = 'flex-1 py-2 px-3 text-xs rounded bg-green-500 text-white complete-btn';
+                        missedSelect.value = '0';
+                    } else {
+                        card.className = 'fard-prayer-card bg-orange-50 rounded-lg p-4';
+                        icon.textContent = '⚠️';
+                        completeBtn.className = 'flex-1 py-2 px-3 text-xs rounded bg-gray-300 text-gray-600 complete-btn';
+                        missedSelect.value = prayerData.missedRakaat.toString();
+                    }
+                } else {
+                    card.className = 'fard-prayer-card bg-gray-50 rounded-lg p-4';
+                    icon.textContent = '⏳';
+                    completeBtn.className = 'flex-1 py-2 px-3 text-xs rounded bg-gray-200 text-gray-600 complete-btn';
+                    missedSelect.value = '0';
+                }
+            });
+            
+            // Update nafl prayers
             document.querySelectorAll('.prayer-item').forEach(item => {
                 const prayer = item.dataset.prayer;
                 const type = item.dataset.type;
-                const isCompleted = prayerState[type][prayer];
-                const icon = item.querySelector('.prayer-icon');
-                
-                if (isCompleted) {
-                    if (type === 'fard') {
-                        item.className = 'prayer-item cursor-pointer bg-green-50 rounded-lg p-3 text-center transition-all duration-200';
-                        item.querySelector('.text-sm').className = 'text-sm font-medium text-green-800';
-                        icon.textContent = '✅';
-                        icon.className = 'prayer-icon text-green-600 text-xl mb-1';
-                    } else {
+                if (type === 'nafl') {
+                    const isCompleted = prayerState.nafl[prayer];
+                    const icon = item.querySelector('.prayer-icon');
+                    
+                    if (isCompleted) {
                         item.className = 'prayer-item cursor-pointer bg-amber-50 rounded-lg p-3 text-center transition-all duration-200';
                         item.querySelector('.text-sm').className = 'text-sm font-medium text-amber-800';
                         icon.textContent = '⭐';
                         icon.className = 'prayer-icon text-amber-600 text-xl mb-1';
+                    } else {
+                        item.className = 'prayer-item cursor-pointer bg-gray-100 rounded-lg p-3 text-center transition-all duration-200';
+                        item.querySelector('.text-sm').className = 'text-sm font-medium text-gray-600';
+                        icon.textContent = '⏳';
+                        icon.className = 'prayer-icon text-gray-400 text-xl mb-1';
                     }
-                } else {
-                    item.className = 'prayer-item cursor-pointer bg-gray-100 rounded-lg p-3 text-center transition-all duration-200';
-                    item.querySelector('.text-sm').className = 'text-sm font-medium text-gray-600';
-                    icon.textContent = '⏳';
-                    icon.className = 'prayer-icon text-gray-400 text-xl mb-1';
                 }
             });
         }
 
         // Update progress circles and status messages
         function updateProgressCircles() {
-            const fardCompleted = Object.values(prayerState.fard).filter(Boolean).length;
+            const fardCompleted = Object.values(prayerState.fard).filter(prayer => prayer.completed).length;
             const naflCompleted = Object.values(prayerState.nafl).filter(Boolean).length;
             
             // Update fard progress
@@ -437,11 +539,13 @@
             const dayData = monthData[day] || {};
             
             // Update prayer state based on saved data
-            prayerState.fard.fajr = dayData.fajr || false;
-            prayerState.fard.dhuhr = dayData.dhuhr || false;
-            prayerState.fard.asr = dayData.asr || false;
-            prayerState.fard.maghrib = dayData.maghrib || false;
-            prayerState.fard.isha = dayData.isha || false;
+            Object.keys(prayerState.fard).forEach(prayer => {
+                if (dayData[prayer]) {
+                    prayerState.fard[prayer] = dayData[prayer];
+                } else {
+                    prayerState.fard[prayer] = { completed: false, missedRakaat: 0 };
+                }
+            });
             
             prayerState.nafl['fajr-sunnah'] = dayData['fajr-sunnah'] || false;
             prayerState.nafl.duha = dayData.duha || false;
@@ -525,21 +629,47 @@
             loadDailyData();
             updateUI();
             
-            // Add click listeners
-            document.querySelectorAll('.prayer-item').forEach(item => {
-                item.addEventListener('click', function() {
+            // Add click listeners for fard prayers
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
                     const prayer = this.dataset.prayer;
-                    const type = this.dataset.type;
+                    const currentState = prayerState.fard[prayer];
                     
-                    // Animation
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1)';
-                    }, 150);
-                    
-                    // Toggle prayer
-                    togglePrayer(prayer, type);
+                    if (currentState.completed && currentState.missedRakaat === 0) {
+                        handleFardPrayer(prayer, 'reset');
+                    } else {
+                        handleFardPrayer(prayer, 'complete');
+                    }
                 });
+            });
+            
+            document.querySelectorAll('.missed-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const prayer = this.dataset.prayer;
+                    const missedRakaat = this.value;
+                    
+                    if (missedRakaat > 0) {
+                        handleFardPrayer(prayer, 'missed', missedRakaat);
+                    }
+                });
+            });
+            
+            // Add click listeners for nafl prayers
+            document.querySelectorAll('.prayer-item').forEach(item => {
+                if (item.dataset.type === 'nafl') {
+                    item.addEventListener('click', function() {
+                        const prayer = this.dataset.prayer;
+                        
+                        // Animation
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1)';
+                        }, 150);
+                        
+                        // Toggle nafl prayer
+                        toggleNaflPrayer(prayer);
+                    });
+                }
             });
         });
     </script>
