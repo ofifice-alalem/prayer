@@ -141,10 +141,18 @@
             const missedRakaatList = document.getElementById('missed-rakaat-list');
             const noMissedRakaat = document.getElementById('no-missed-rakaat');
             
-            const prayerNames = {
-                'fajr': 'الفجر', 'dhuhr': 'الظهر', 'asr': 'العصر', 
-                'maghrib': 'المغرب', 'isha': 'العشاء'
-            };
+            function getPrayerName(prayer, day) {
+                if (prayer === 'dhuhr') {
+                    const dayDate = new Date(new Date().getFullYear(), new Date().getMonth(), day);
+                    const isFriday = dayDate.getDay() === 5;
+                    return isFriday ? 'الجمعة' : 'الظهر';
+                }
+                const prayerNames = {
+                    'fajr': 'الفجر', 'asr': 'العصر', 
+                    'maghrib': 'المغرب', 'isha': 'العشاء'
+                };
+                return prayerNames[prayer];
+            }
             
             let totalMissedDays = 0;
             let totalMissedRakaat = 0;
@@ -160,12 +168,16 @@
                 ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {
                     const status = getPrayerStatus(dayData[prayer]);
                     if (status.completed && status.missed > 0) {
+                        const prayerDisplayName = getPrayerName(prayer, day);
                         dayMissedRakaat.push({
-                            prayer: prayerNames[prayer],
+                            prayer: prayerDisplayName,
                             missed: status.missed
                         });
                         dayTotalMissed += status.missed;
-                        prayerMissedCount[prayer] = (prayerMissedCount[prayer] || 0) + status.missed;
+                        
+                        // Count separately for Friday and regular Dhuhr
+                        const countKey = prayer === 'dhuhr' ? prayerDisplayName : prayer;
+                        prayerMissedCount[countKey] = (prayerMissedCount[countKey] || 0) + status.missed;
                     }
                 });
 
@@ -191,7 +203,7 @@
             Object.entries(prayerMissedCount).forEach(([prayer, count]) => {
                 if (count > maxMissed) {
                     maxMissed = count;
-                    mostMissedPrayer = prayerNames[prayer];
+                    mostMissedPrayer = prayer;
                 }
             });
             document.getElementById('most-missed-prayer').textContent = mostMissedPrayer;

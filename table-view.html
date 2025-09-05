@@ -155,7 +155,21 @@
                 const row = document.createElement('tr');
                 const isAllFardComplete = fardCount === 5;
                 const isAllNaflComplete = naflCount === 3;
-                const rowBgClass = isAllFardComplete ? 'bg-green-50' : '';
+                const hasMissedFard = !isFutureDay && fardCount < 5;
+                
+                // Check if no missed rakaat
+                const hasNoMissedRakaat = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].every(p => {
+                    const prayerData = dayData[p];
+                    return !prayerData || prayerData === true || !prayerData.completed || prayerData.missedRakaat === 0;
+                });
+                
+                let rowBgClass = '';
+                if (hasMissedFard) {
+                    rowBgClass = 'bg-red-100';
+                } else if (isAllFardComplete) {
+                    rowBgClass = 'bg-green-100';
+                }
+                
                 row.className = `border-b border-gray-100 ${isFutureDay ? 'opacity-50' : ''} ${rowBgClass}`;
                 
                 const dayName = getDayName(day);
@@ -181,7 +195,7 @@
                 
                 row.innerHTML = `
                     <td class="p-3 text-gray-800 font-medium">
-                        <div class="font-bold">${day} ${isAllFardComplete && isAllNaflComplete ? '⭐' : ''}</div>
+                        <div class="font-bold">${day} ${isAllFardComplete && isAllNaflComplete && hasNoMissedRakaat ? '⭐' : ''}</div>
                         <div class="text-xs text-gray-500">${dayName}</div>
                     </td>
                     ${fardCells}
@@ -216,11 +230,20 @@
             const prayerData = dayData[prayer] || { completed: false, missedRakaat: 0 };
             const status = getPrayerStatus(prayerData);
             
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const dayDate = new Date(year, month, day);
+            const isFriday = dayDate.getDay() === 5;
+            
             const prayerNames = {
-                'fajr': 'الفجر (2 ركعة)', 'dhuhr': 'الظهر (4 ركعات)', 'asr': 'العصر (4 ركعات)', 
-                'maghrib': 'المغرب (3 ركعات)', 'isha': 'العشاء (4 ركعات)'
+                'fajr': 'الفجر (2 ركعة)', 
+                'dhuhr': isFriday ? 'الجمعة (2 ركعة)' : 'الظهر (4 ركعات)', 
+                'asr': 'العصر (4 ركعات)', 
+                'maghrib': 'المغرب (3 ركعات)', 
+                'isha': 'العشاء (4 ركعات)'
             };
-            const maxRakaat = { 'fajr': 2, 'dhuhr': 4, 'asr': 4, 'maghrib': 3, 'isha': 4 };
+            const maxRakaat = { 'fajr': 2, 'dhuhr': isFriday ? 2 : 4, 'asr': 4, 'maghrib': 3, 'isha': 4 };
             
             let rakaatOptions = '<option value="0">لا يوجد فوات</option>';
             for (let i = 1; i <= maxRakaat[prayer]; i++) {
@@ -335,6 +358,7 @@
             const totalPercentage = Math.round(((fardCount + naflCount) / 8) * 100);
             const isAllFardComplete = fardCount === 5;
             const isAllNaflComplete = naflCount === 3;
+            const hasMissedFard = fardCount < 5;
             
             const rows = document.querySelectorAll('#prayer-table tr');
             const targetRow = rows[day - 1];
@@ -343,17 +367,24 @@
                 percentageCell.textContent = totalPercentage + '%';
                 
                 // Update row background
-                if (isAllFardComplete) {
-                    targetRow.classList.add('bg-green-50');
-                } else {
-                    targetRow.classList.remove('bg-green-50');
+                targetRow.classList.remove('bg-green-50', 'bg-red-50', 'bg-green-100', 'bg-red-100');
+                if (hasMissedFard) {
+                    targetRow.classList.add('bg-red-100');
+                } else if (isAllFardComplete) {
+                    targetRow.classList.add('bg-green-100');
                 }
+                
+                // Check if no missed rakaat for update
+                const hasNoMissedRakaatUpdate = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].every(p => {
+                    const prayerData = dayData[p];
+                    return !prayerData || prayerData === true || !prayerData.completed || prayerData.missedRakaat === 0;
+                });
                 
                 // Update star in day cell
                 const dayCell = targetRow.querySelector('td:first-child div:first-child');
                 if (dayCell) {
                     const dayNumber = day;
-                    dayCell.innerHTML = `${dayNumber} ${isAllFardComplete && isAllNaflComplete ? '⭐' : ''}`;
+                    dayCell.innerHTML = `${dayNumber} ${isAllFardComplete && isAllNaflComplete && hasNoMissedRakaatUpdate ? '⭐' : ''}`;
                 }
             }
         }

@@ -123,7 +123,7 @@
         </div>
 
         <!-- Monthly Summary -->
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
                 <div class="text-center">
                     <div class="text-3xl font-bold text-green-600" id="month-fard">0%</div>
@@ -140,6 +140,12 @@
                 <div class="text-center">
                     <div class="text-3xl font-bold text-blue-600" id="month-total">0%</div>
                     <div class="text-gray-700 font-medium">المتوسط الإجمالي</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600" id="perfect-days">0</div>
+                    <div class="text-gray-700 font-medium">أيام مكتملة ⭐</div>
                 </div>
             </div>
         </div>
@@ -258,6 +264,12 @@
                 const naflPercentage = Math.round((naflCount / 3) * 100);
                 const totalPercentage = Math.round(((fardCount + naflCount) / 8) * 100);
                 
+                // Check if no missed rakaat
+                const hasNoMissedRakaat = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].every(p => {
+                    const prayerData = dayData[p];
+                    return !prayerData || prayerData === true || !prayerData.completed || prayerData.missedRakaat === 0;
+                });
+                
                 const dayCell = document.createElement('div');
                 const isFutureDay = (year === currentYear && month === currentMonth && day > today) || 
                                    (year === currentYear && month > currentMonth) || 
@@ -281,7 +293,7 @@
                                 <div>ف: ${fardPercentage}%</div>
                                 <div>ن: ${naflPercentage}%</div>
                             </div>
-                            ${totalPercentage === 100 ? '<div class="text-yellow-400 text-sm sm:text-lg mt-1">⭐</div>' : ''}
+                            ${totalPercentage === 100 && hasNoMissedRakaat ? '<div class="text-yellow-400 text-sm sm:text-lg mt-1">⭐</div>' : ''}
                         </div>
                     `;
                     
@@ -296,7 +308,7 @@
 
         function calculateMonthlyStats() {
             const monthlyData = loadMonthlyData();
-            let totalFard = 0, totalNafl = 0, totalDays = 0;
+            let totalFard = 0, totalNafl = 0, totalDays = 0, perfectDays = 0;
             
             Object.values(monthlyData).forEach(day => {
                 const fardCount = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].filter(p => isPrayerCompleted(day[p])).length;
@@ -304,12 +316,23 @@
                 totalFard += fardCount;
                 totalNafl += naflCount;
                 totalDays++;
+                
+                // Check if this day is perfect (8/8) with no missed rakaat
+                const hasNoMissedRakaatStats = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].every(p => {
+                    const prayerData = day[p];
+                    return !prayerData || prayerData === true || !prayerData.completed || prayerData.missedRakaat === 0;
+                });
+                
+                if (fardCount === 5 && naflCount === 3 && hasNoMissedRakaatStats) {
+                    perfectDays++;
+                }
             });
             
             if (totalDays === 0) {
                 document.getElementById('month-fard').textContent = '0%';
                 document.getElementById('month-nafl').textContent = '0%';
                 document.getElementById('month-total').textContent = '0%';
+                document.getElementById('perfect-days').textContent = '0';
                 return;
             }
             
@@ -320,6 +343,7 @@
             document.getElementById('month-fard').textContent = avgFard + '%';
             document.getElementById('month-nafl').textContent = avgNafl + '%';
             document.getElementById('month-total').textContent = avgTotal + '%';
+            document.getElementById('perfect-days').textContent = perfectDays;
         }
 
         function updateCurrentMonth() {
@@ -394,12 +418,19 @@
             const dayData = monthlyData[day] || {};
             const content = document.getElementById('modal-content');
             
+            const dayDate = new Date(new Date().getFullYear(), new Date().getMonth(), day);
+            const isFriday = dayDate.getDay() === 5;
+            
             const prayerNames = {
-                'fajr': 'الفجر (2)', 'dhuhr': 'الظهر (4)', 'asr': 'العصر (4)', 'maghrib': 'المغرب (3)', 'isha': 'العشاء (4)',
+                'fajr': 'الفجر (2)', 
+                'dhuhr': isFriday ? 'الجمعة (2)' : 'الظهر (4)', 
+                'asr': 'العصر (4)', 
+                'maghrib': 'المغرب (3)', 
+                'isha': 'العشاء (4)',
                 'fajr-sunnah': 'سنة الفجر', 'duha': 'الضحى', 'witr': 'الوتر'
             };
             
-            const maxRakaat = { 'fajr': 2, 'dhuhr': 4, 'asr': 4, 'maghrib': 3, 'isha': 4 };
+            const maxRakaat = { 'fajr': 2, 'dhuhr': isFriday ? 2 : 4, 'asr': 4, 'maghrib': 3, 'isha': 4 };
             
             let fardHtml = '';
             ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(prayer => {

@@ -117,17 +117,17 @@
                         <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
                             <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="8" fill="none"/>
                             <circle cx="60" cy="60" r="50" stroke="#10b981" stroke-width="8" fill="none"
-                                    stroke-dasharray="314.16" stroke-dashoffset="0" class="progress-ring-circle" id="fard-progress"/>
+                                    stroke-dasharray="314.16" stroke-dashoffset="314.16" class="progress-ring-circle" id="fard-progress"/>
                         </svg>
                         <div class="absolute mt-6">
-                            <span class="text-2xl font-bold text-gray-800" id="fard-count">5</span>
+                            <span class="text-2xl font-bold text-gray-800" id="fard-count">0</span>
                             <span class="text-gray-500">/5</span>
                         </div>
                     </div>
                     <h2 class="text-xl font-bold text-gray-800 mb-2">صلاة الفريضة</h2>
                     <div class="flex justify-center items-center gap-2 mb-3">
-                        <span class="text-3xl" id="fard-icon">✅</span>
-                        <span class="text-lg font-semibold text-green-600" id="fard-percentage">100%</span>
+                        <span class="text-3xl" id="fard-icon">⏳</span>
+                        <span class="text-lg font-semibold text-green-600" id="fard-percentage">0%</span>
                     </div>
                     <div class="rounded-lg p-3" id="fard-status">
                         <p class="font-medium" id="fard-status-text">ابدأ بتسجيل صلواتك</p>
@@ -142,17 +142,17 @@
                         <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
                             <circle cx="60" cy="60" r="50" stroke="#e5e7eb" stroke-width="8" fill="none"/>
                             <circle cx="60" cy="60" r="50" stroke="#f59e0b" stroke-width="8" fill="none"
-                                    stroke-dasharray="314.16" stroke-dashoffset="104.72" class="progress-ring-circle" id="nafl-progress"/>
+                                    stroke-dasharray="314.16" stroke-dashoffset="314.16" class="progress-ring-circle" id="nafl-progress"/>
                         </svg>
                         <div class="absolute mt-6">
-                            <span class="text-2xl font-bold text-gray-800" id="nafl-count">2</span>
+                            <span class="text-2xl font-bold text-gray-800" id="nafl-count">0</span>
                             <span class="text-gray-500">/3</span>
                         </div>
                     </div>
                     <h2 class="text-xl font-bold text-gray-800 mb-2">صلاة النافلة</h2>
                     <div class="flex justify-center items-center gap-2 mb-3">
-                        <span class="text-3xl" id="nafl-icon">⭐</span>
-                        <span class="text-lg font-semibold text-amber-600" id="nafl-percentage">67%</span>
+                        <span class="text-3xl" id="nafl-icon">⏳</span>
+                        <span class="text-lg font-semibold text-amber-600" id="nafl-percentage">0%</span>
                     </div>
                     <div class="rounded-lg p-3" id="nafl-status">
                         <p class="font-medium" id="nafl-completed-text">ابدأ بتسجيل النوافل</p>
@@ -168,15 +168,15 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">الإجمالي اليومي</h2>
                 <div class="grid grid-cols-3 gap-4 mb-4">
                     <div class="bg-blue-50 rounded-lg p-4">
-                        <div class="text-2xl font-bold text-blue-600" id="total-prayers">7</div>
+                        <div class="text-2xl font-bold text-blue-600" id="total-prayers">0/8</div>
                         <div class="text-blue-800 text-sm">إجمالي الصلوات</div>
                     </div>
                     <div class="bg-green-50 rounded-lg p-4">
-                        <div class="text-2xl font-bold text-green-600" id="total-percentage">88%</div>
+                        <div class="text-2xl font-bold text-green-600" id="total-percentage">0%</div>
                         <div class="text-green-800 text-sm">النسبة الإجمالية</div>
                     </div>
                     <div class="bg-purple-50 rounded-lg p-4">
-                        <div class="text-2xl font-bold text-purple-600" id="streak">🔥 3</div>
+                        <div class="text-2xl font-bold text-purple-600" id="streak">🔥 0</div>
                         <div class="text-purple-800 text-sm">أيام متتالية</div>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
                 <!-- Overall Progress Bar -->
                 <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
                     <div class="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out" 
-                         style="width: 88%" id="overall-progress-bar"></div>
+                         style="width: 0%" id="overall-progress-bar"></div>
                 </div>
                 
                 <p class="text-gray-600">بارك الله فيك، استمر في المحافظة على الصلاة</p>
@@ -215,14 +215,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="fard-prayer-card bg-gray-50 rounded-lg p-4" data-prayer="dhuhr">
+                    <div class="fard-prayer-card bg-gray-50 rounded-lg p-4" data-prayer="dhuhr" id="dhuhr-card">
                         <div class="text-center mb-3">
                             <div class="prayer-icon text-2xl mb-1">⏳</div>
-                            <div class="text-sm font-medium">الظهر (4 ركعات)</div>
+                            <div class="text-sm font-medium" id="dhuhr-name">الظهر (4 ركعات)</div>
                         </div>
                         <div class="flex gap-2">
                             <button class="flex-1 py-2 px-3 text-xs rounded complete-btn" data-prayer="dhuhr" data-action="complete">مكتملة ✅</button>
-                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="dhuhr">
+                            <select class="flex-1 py-2 px-3 text-xs rounded border missed-select" data-prayer="dhuhr" id="dhuhr-select">
                                 <option value="0">لا يوجد فوات</option>
                                 <option value="1">ركعة واحدة</option>
                                 <option value="2">ركعتان</option>
@@ -465,9 +465,62 @@
             }
         }
 
+        // Calculate consecutive complete days
+        function calculateStreak() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return 0;
+            
+            const now = new Date();
+            const today = now.getDate();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            const key = `prayers_${currentUser}_${year}_${month}`;
+            
+            const monthData = JSON.parse(localStorage.getItem(key) || '{}');
+            let streak = 0;
+            
+            // Check backwards from yesterday
+            for (let day = today - 1; day >= 1; day--) {
+                const dayData = monthData[day] || {};
+                
+                // Count fard and nafl prayers for this day
+                const fardCount = Object.values({
+                    fajr: dayData.fajr,
+                    dhuhr: dayData.dhuhr,
+                    asr: dayData.asr,
+                    maghrib: dayData.maghrib,
+                    isha: dayData.isha
+                }).filter(prayer => {
+                    return prayer && (prayer === true || prayer.completed === true);
+                }).length;
+                
+                const naflCount = [dayData['fajr-sunnah'], dayData.duha, dayData.witr].filter(Boolean).length;
+                const totalForDay = fardCount + naflCount;
+                
+                // Check if no missed rakaat for this day
+                const hasNoMissedRakaatStreak = Object.values({
+                    fajr: dayData.fajr,
+                    dhuhr: dayData.dhuhr,
+                    asr: dayData.asr,
+                    maghrib: dayData.maghrib,
+                    isha: dayData.isha
+                }).every(prayer => {
+                    return !prayer || prayer === true || !prayer.completed || prayer.missedRakaat === 0;
+                });
+                
+                if (totalForDay === 8 && hasNoMissedRakaatStreak) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+        
         // Update summary section
         function updateSummary() {
-            const fardCompleted = Object.values(prayerState.fard).filter(Boolean).length;
+            const fardCompleted = Object.values(prayerState.fard).filter(prayer => prayer.completed).length;
             const naflCompleted = Object.values(prayerState.nafl).filter(Boolean).length;
             const totalCompleted = fardCompleted + naflCompleted;
             const totalPercentage = Math.round((totalCompleted / 8) * 100);
@@ -476,10 +529,19 @@
             document.getElementById('total-percentage').textContent = totalPercentage + '%';
             document.getElementById('overall-progress-bar').style.width = totalPercentage + '%';
             
+            // Update streak
+            const streak = calculateStreak();
+            document.getElementById('streak').textContent = `🔥 ${streak}`;
+            
             // Save to localStorage
             saveDailyData();
             
-            if (totalCompleted === 8) {
+            // Check if no missed rakaat
+            const hasNoMissedRakaat = Object.values(prayerState.fard).every(prayer => 
+                !prayer.completed || prayer.missedRakaat === 0
+            );
+            
+            if (totalCompleted === 8 && hasNoMissedRakaat) {
                 triggerCelebration();
             }
         }
@@ -618,6 +680,23 @@
             document.getElementById('current-date').textContent = `${day} - ${now.getMonth() + 1} - ${year}`;
         }
         
+        // Update Friday prayer display
+        function updateFridayPrayer() {
+            const now = new Date();
+            const isFriday = now.getDay() === 5;
+            
+            if (isFriday) {
+                document.getElementById('dhuhr-name').textContent = 'الجمعة (2 ركعة)';
+                
+                const select = document.getElementById('dhuhr-select');
+                select.innerHTML = `
+                    <option value="0">لا يوجد فوات</option>
+                    <option value="1">ركعة واحدة</option>
+                    <option value="2">ركعتان</option>
+                `;
+            }
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             const currentUser = getCurrentUser();
@@ -626,6 +705,7 @@
             applyUserTheme();
             updateDateTime();
             setInterval(updateDateTime, 60000);
+            updateFridayPrayer();
             loadDailyData();
             updateUI();
             
