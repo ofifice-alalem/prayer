@@ -120,6 +120,15 @@
             <a href="missed-rakaat-summary.html" class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors">
                 الركعات الفائتة
             </a>
+            <a href="missed-prayers-summary.html" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                الصلوات المفقودة
+            </a>
+            <button onclick="exportToJSON()" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"/>
+                </svg>
+                تصدير JSON
+            </button>
         </div>
 
         <!-- Monthly Summary -->
@@ -474,6 +483,14 @@
             content.innerHTML = `
                 <div class="overflow-y-auto flex-1">
                     <div class="space-y-4">
+                        <div class="flex gap-2 mb-4">
+                            <button onclick="selectAllPrayers()" class="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700">
+                                تحديد الكل
+                            </button>
+                            <button onclick="deselectAllPrayers()" class="flex-1 bg-gray-600 text-white px-3 py-2 rounded text-sm hover:bg-gray-700">
+                                إلغاء تحديد الكل
+                            </button>
+                        </div>
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <h4 class="font-medium text-gray-800 mb-3">الصلوات المفروضة</h4>
@@ -587,6 +604,76 @@
             document.getElementById('user-avatar').textContent = profile.avatar;
             document.getElementById('user-avatar').className = `w-12 h-12 bg-${profile.color}-500 rounded-full flex items-center justify-center text-2xl text-white`;
             document.getElementById('current-month').className = `text-2xl font-bold text-${profile.color}-600`;
+        }
+        
+        function selectAllPrayers() {
+            // Select all fard prayers (complete buttons)
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                btn.className = 'flex-1 py-2 px-3 text-xs rounded bg-green-500 text-white complete-btn';
+                const prayer = btn.dataset.prayer;
+                const missedSelect = document.querySelector(`.missed-select[data-prayer="${prayer}"]`);
+                if (missedSelect) missedSelect.value = '0';
+            });
+            
+            // Select all nafl prayers (checkboxes)
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        }
+        
+        function deselectAllPrayers() {
+            // Deselect all fard prayers (complete buttons)
+            document.querySelectorAll('.complete-btn').forEach(btn => {
+                btn.className = 'flex-1 py-2 px-3 text-xs rounded bg-gray-200 text-gray-600 complete-btn';
+                const prayer = btn.dataset.prayer;
+                const missedSelect = document.querySelector(`.missed-select[data-prayer="${prayer}"]`);
+                if (missedSelect) missedSelect.value = '0';
+            });
+            
+            // Deselect all nafl prayers (checkboxes)
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+        
+        function exportToJSON() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const profile = getUserProfile(currentUser);
+            const now = new Date();
+            
+            // Collect all prayer data for the user
+            const userData = {
+                username: profile.username,
+                exportDate: now.toISOString(),
+                prayerData: {}
+            };
+            
+            // Get all months data
+            for (let key in localStorage) {
+                if (key.startsWith(`prayers_${currentUser}_`)) {
+                    userData.prayerData[key] = JSON.parse(localStorage.getItem(key));
+                }
+            }
+            
+            const jsonData = JSON.stringify(userData, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `بيانات_الصلاة_${profile.username}_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show success message
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            toast.textContent = 'تم تصدير البيانات بنجاح!';
+            document.body.appendChild(toast);
+            setTimeout(() => document.body.removeChild(toast), 3000);
         }
         
         document.addEventListener('DOMContentLoaded', function() {
