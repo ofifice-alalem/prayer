@@ -69,24 +69,35 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-arabic">
+    <style>
+        @media (max-width: 500px) {
+            .mobile-fixed { position: fixed; top: 0; left: 0; right: 0; z-index: 30; }
+            .mobile-content { margin-top: 80px; }
+        }
+    </style>
     <div id="celebration" class="celebration"></div>
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="container mx-auto px-2 sm:px-4 py-2 sm:py-8 max-w-4xl">
         <!-- User Header -->
-        <div class="bg-white rounded-2xl shadow-lg p-4 mb-6">
+        <div class="bg-white rounded-2xl shadow-lg p-2 sm:p-4 mb-6 mobile-fixed">
             <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl" id="user-avatar"></div>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <div class="w-10 sm:w-12 h-10 sm:h-12 rounded-full flex items-center justify-center text-xl sm:text-2xl" id="user-avatar"></div>
                     <div>
-                        <div class="text-xl font-bold" id="user-name"></div>
-                        <div class="text-sm text-gray-600">مرحباً بك</div>
+                        <div class="text-lg sm:text-xl font-bold" id="user-name"></div>
+                        <div class="text-xs sm:text-sm text-gray-600">مرحباً بك</div>
                     </div>
                 </div>
-                <button onclick="changeUser()" class="text-sm text-gray-500 hover:text-gray-700">تغيير المستخدم</button>
+                <button onclick="toggleSidebar()" class="text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-2 border-gray-200 rounded-xl px-5 py-2" style="padding: 5px 10px 5px 20px; border-radius: 10px; border: 2px solid #eee;">
+                    <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <span class="text-lg">🏠</span>
+                    </div>
+                    <span>القائمة</span>
+                </button>
             </div>
         </div>
         
         <!-- Header -->
-        <div class="text-center mb-8">
+        <div class="text-center mb-8 mobile-content">
             <div class="bg-white rounded-2xl shadow-lg p-4 mb-6">
                 <div class="text-2xl font-bold" id="current-date"></div>
                 <div class="text-lg text-gray-600" id="current-day"></div>
@@ -95,21 +106,7 @@
             <p class="text-gray-600">تتبع صلواتك اليومية</p>
         </div>
 
-        <!-- Navigation -->
-        <div class="mb-6 flex justify-center gap-4 flex-wrap">
-            <a href="monthly-report.html" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
-                التقرير الشهري
-            </a>
-            <a href="table-view.html" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors">
-                العرض الجدولي
-            </a>
-            <a href="missed-rakaat-summary.html" class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors">
-                الركعات الفائتة
-            </a>
-            <a href="missed-prayers-summary.html" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors">
-                الصلوات المفقودة
-            </a>
-        </div>
+
 
         <!-- Main Grid -->
         <div class="grid md:grid-cols-2 gap-6 mb-6">
@@ -756,5 +753,6 @@
             });
         });
     </script>
+    <script src="sidebar.js"></script>
 </body>
 </html>
