@@ -24,7 +24,7 @@
         </div>
 
         <!-- Add New User Card -->
-        <div class="mt-6 flex justify-center">
+        <div class="mt-6 flex justify-center gap-6">
             <div class="user-card bg-white rounded-2xl shadow-lg p-6 w-64 border-2 border-dashed border-gray-300 hover:border-blue-500" onclick="addNewUser()">
                 <div class="text-center">
                     <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-3xl text-gray-400 mx-auto mb-4">+</div>
@@ -32,7 +32,15 @@
                     <p class="text-sm text-gray-500">انقر لإنشاء حساب جديد</p>
                 </div>
             </div>
+            <div class="user-card bg-white rounded-2xl shadow-lg p-6 w-64 border-2 border-dashed border-green-300 hover:border-green-500" onclick="document.getElementById('import-file').click()">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-200 rounded-full flex items-center justify-center text-3xl text-green-600 mx-auto mb-4">📁</div>
+                    <h3 class="text-lg font-bold text-gray-600 mb-2">استيراد بيانات</h3>
+                    <p class="text-sm text-gray-500">انقر لاستيراد نسخة احتياطية</p>
+                </div>
+            </div>
         </div>
+        <input type="file" id="import-file" accept=".json" style="display: none" onchange="importData(event)">
     </div>
 
     <script>
@@ -121,6 +129,130 @@
             }
         }
 
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const userData = JSON.parse(e.target.result);
+                    
+                    if (!userData.username || !userData.prayerData) {
+                        alert('ملف غير صحيح!');
+                        return;
+                    }
+                    
+                    // Show import dialog
+                    showImportDialog(userData);
+                    
+                } catch (error) {
+                    alert('خطأ في قراءة الملف!');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function showImportDialog(userData) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl p-6 w-96 max-w-sm mx-4">
+                    <h3 class="text-xl font-bold mb-4">استيراد بيانات</h3>
+                    <p class="mb-4">اسم المستخدم: <strong>${userData.username}</strong></p>
+                    <p class="mb-4">اختر الأفاتار واللون:</p>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">الأفاتار:</label>
+                        <div class="grid grid-cols-4 gap-2" id="avatar-grid">
+                            ${['👤', '👥', '👦', '👧', '👨', '👩', '👴', '👵'].map(avatar => 
+                                `<button class="avatar-btn w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl hover:bg-gray-300" data-avatar="${avatar}">${avatar}</button>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">اللون:</label>
+                        <div class="grid grid-cols-4 gap-2" id="color-grid">
+                            ${['blue', 'green', 'purple', 'red', 'yellow', 'pink', 'indigo', 'gray'].map(color => 
+                                `<button class="color-btn w-8 h-8 rounded-full bg-${color}-500 hover:scale-110 transition-transform" data-color="${color}"></button>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="completeImport()" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">استيراد</button>
+                        <button onclick="closeImportDialog()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400">إلغاء</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            window.importModal = modal;
+            window.importUserData = userData;
+            
+            // Add event listeners
+            let selectedAvatar = '👤';
+            let selectedColor = 'blue';
+            
+            modal.querySelectorAll('.avatar-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modal.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('bg-blue-500', 'text-white'));
+                    this.classList.add('bg-blue-500', 'text-white');
+                    selectedAvatar = this.dataset.avatar;
+                });
+            });
+            
+            modal.querySelectorAll('.color-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modal.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-4', 'ring-gray-400'));
+                    this.classList.add('ring-4', 'ring-gray-400');
+                    selectedColor = this.dataset.color;
+                });
+            });
+            
+            // Set defaults
+            modal.querySelector('.avatar-btn').classList.add('bg-blue-500', 'text-white');
+            modal.querySelector('.color-btn').classList.add('ring-4', 'ring-gray-400');
+            
+            window.completeImport = function() {
+                const userData = window.importUserData;
+                
+                // Create user profile
+                const profile = {
+                    username: userData.username,
+                    avatar: selectedAvatar,
+                    color: selectedColor
+                };
+                
+                localStorage.setItem(`user_${userData.username}`, JSON.stringify(profile));
+                
+                // Import prayer data with updated keys
+                Object.entries(userData.prayerData).forEach(([oldKey, data]) => {
+                    // Extract year and month from old key: prayers_olduser_2024_12
+                    const keyParts = oldKey.split('_');
+                    if (keyParts.length >= 4) {
+                        const year = keyParts[keyParts.length - 2];
+                        const month = keyParts[keyParts.length - 1];
+                        const newKey = `prayers_${userData.username}_${year}_${month}`;
+                        localStorage.setItem(newKey, JSON.stringify(data));
+                    }
+                });
+                
+                closeImportDialog();
+                loadUsers();
+                alert('تم استيراد البيانات بنجاح!');
+            };
+        }
+        
+        function closeImportDialog() {
+            if (window.importModal) {
+                document.body.removeChild(window.importModal);
+                window.importModal = null;
+                window.importUserData = null;
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', loadUsers);
     </script>
 </body>
